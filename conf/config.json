@@ -1,0 +1,16 @@
+{
+	"pay":{
+		"alipay":{
+			"public_key_file":"$[workdir]$/alipay/public.txt",
+			"private_key_file":"$[workdir]$/alipay/private.txt",
+			"appid":"2021005111636494",
+			"callback":"/api/callback/alipay"
+		},
+		"paypal":{
+			"mode":"sandbox",
+			"client_id":"myid",
+			"client_secret":"mysecret",
+			"return_url":"ret_url",
+			"cancel_url":"cancel_url"
+		}
+}
