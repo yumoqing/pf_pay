@@ -1,0 +1,19 @@
+debug(f'/api/callback/alipay/index.dspy:{params_kw=}')
+d = {k:v for k,v in params_kw.items() if k not in ['sign_type', 'sign' ] }
+sign_type = params_kw.sign_type
+sign = params_kw.sign
+try:
+    check = await alipay_callback_verify(d, sign)
+    if not check:
+        debug(f'{d=}, {sign=}, {check=}')
+        raise Exception('sign check error')
+    d = DictObject(**d)
+    pbar = PlatformBizAccRecharge(d.out_trade_no)
+    db = DBPools()
+    async with db.sqlorContext('sage') as sor:
+        await change_recharge_status(sor, d.out_trade_no, '1', d.trade_no)
+        await pbar.accounting(sor)
+        return "充值成功"
+except Exception as e:
+    debug(f'{e=}')
+    return f"程序出错({e})，请联系客服，充值日志id=" + d.out_trade_no + '支付宝交易id=' + d.trade_no

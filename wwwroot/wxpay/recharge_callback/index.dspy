@@ -1,0 +1,16 @@
+debug(f'/pf_pay/wxpay/recharge_callback/index.dspy:{params_kw=}')
+client = WechatPayClient()
+try:
+    check = await client.pay_notice_verify(request)
+    if not check:
+        raise Exception('WX PAY check error')
+    d = DictObject(**check)
+    pbar = PlatformBizAccRecharge(d.out_trade_no)
+    db = DBPools()
+    async with db.sqlorContext('sage') as sor:
+        # await change_recharge_status(sor, d.out_trade_no, '1', d.trade_no) 
+        await change_recharge_status(sor, d.out_trade_no, '1', None) # 需确认wxpay的交易号在哪里
+        await pbar.accounting(sor)
+        return {"code": "SUCCESS", "message": "OK"}
+except Exception as e:
+    raise Exception(f'{e}\n{format_exc()}')
